@@ -1,0 +1,3 @@
+class InvalidLabyrinth(Exception):
+    pass
+
