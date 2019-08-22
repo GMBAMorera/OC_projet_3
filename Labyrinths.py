@@ -8,10 +8,11 @@ class Labyrinths:
         if not self.lab.endswith('.txt'):
             self.lab += '.txt'
         with open(self.lab) as lab:
-            #Je prends les dimensions du labyrinthe et le nombre d'objets que Mac Gyver doit ramasser
+            #Je prends la largeur du labyrinthe
             self.row_length = len(lab.readlines())
             lab.seek(0)
 
+            #Je parcours le labyrinthe et donne au gardien la force de chaque objet qui y a été posé
             search = ''
             searching = None
             while searching != '':
@@ -20,6 +21,7 @@ class Labyrinths:
                 if OBJECT_TILES.count(searching) == 1 and search.count(searching)==0:
                     adversary.objects *= PRIME_NUMBERS[OBJECT_TILES.index(searching)]
             
+            #Je prends la longueur du labyrinthe
             self.column_length = len(search)/self.row_length
             if int(self.column_length) != self.column_length:
                 raise InvalidLabyrinth('La largeur de votre labyrinthe doit être régulière.')
