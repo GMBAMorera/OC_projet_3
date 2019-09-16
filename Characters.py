@@ -1,6 +1,4 @@
-from Constants import OBJECT_TILES, PRIME_NUMBERS
-from Labyrinths import Labyrinths
-
+from constants import OBJECT_TILES, PRIME_NUMBERS
 class Character:
     def moving(self, search, new_position, adversary, labyrinth):
         """Déplace un personnage dans le labyrinthe."""
@@ -33,6 +31,6 @@ class Character:
             return end, 'malheureusement, votre astuce n était pas assez grande pour premettre de vous en sortir. \
                 La prochaine fois peut-être...'
 
-    def __init__(self, position):
-        self.position = position
+    def __init__(self):
+        self.position = [0,0]
         self.objects = 1

@@ -1,31 +1,35 @@
 import pygame
 import os
-from Characters import Character
-from Labyrinths import Labyrinths
-from constants import KEEPER, MAC_GYVER
+from characters import Character
+from labyrinths import Labyrinth
 
 class Engine:
 
     def main(self):
-        end = 0
         chosen_lab = input('quel labyrinthe voulez-vous essayer? ')
-        labyrinth = Labyrinths(chosen_lab)
+        labyrinth = Labyrinth(chosen_lab)
+        KEEPER = Character()
+        MAC_GYVER = Character()
         search = labyrinth.choosing_lab(MAC_GYVER, KEEPER)
-        new_position = None
+
+        new_position = [0,0]
+        end = 0
         while True:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_UP]:
                 new_position = [MAC_GYVER.position[0]-1, MAC_GYVER.position[1]]
+                end = MAC_GYVER.moving(search, new_position, KEEPER, labyrinth)
             elif keys[pygame.K_DOWN]:
                 new_position = [MAC_GYVER.position[0]+1, MAC_GYVER.position[1]]
+                end = MAC_GYVER.moving(search, new_position, KEEPER, labyrinth)
             elif keys[pygame.K_LEFT]:
                 new_position = [MAC_GYVER.position[0], MAC_GYVER.position[1]-1]
+                end = MAC_GYVER.moving(search, new_position, KEEPER, labyrinth)
             elif keys[pygame.K_RIGHT]:
                 new_position = [MAC_GYVER.position[0], MAC_GYVER.position[1]+1]
+                end = MAC_GYVER.moving(search, new_position, KEEPER, labyrinth)
             elif keys[pygame.K_ESCAPE]:
-                break
-            
-            end = MAC_GYVER.moving( search, new_position, KEEPER, labyrinth)
+                end == 1
             
             if end == 1:
                 break
@@ -37,5 +41,6 @@ class Engine:
     
 
 if __name__ == "__main__":
+    pygame.init()
     new_game = Engine()
     new_game.main()
