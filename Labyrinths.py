@@ -1,5 +1,5 @@
 from random import randrange
-from constants import PIXEL_ROW, PIXEL_COLUMN, OBJECT_TILES
+from constants import OBJECT_TILES
 from exceptions import InvalidLabyrinth
 
 class Labyrinth:
@@ -16,7 +16,7 @@ class Labyrinth:
     def haystacking(self):
         """Place l'aiguille et les autre objets dans le labyrinthe."""
         self.array_to_list()
-        for obj in OBJECT_TILES[1:]:
+        for obj in OBJECT_TILES[2:]:
             # Choisit un corridor
             loc = self.lab.count('0')
             loc = randrange(loc)
