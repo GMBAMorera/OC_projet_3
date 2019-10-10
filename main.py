@@ -4,32 +4,50 @@ from characters import Character
 from labyrinths import Labyrinth
 from constants import *
 
+
+def full_load(image_dict):
+    """Take one picture dictionary
+    and make it a loaded picture dictionary."""
+    for tile in image_dict:
+        # The picture must be in the 'ressource' folder
+        image = '/'.join(['ressource', image_dict[tile]])
+        # load the picture
+        image_dict[tile] = pygame.image.load(image)
+    return image_dict
+
 class Engine:
     def __init__(self):
-        # Image des différentes cases
-        self.tiles = {
-            '0':pygame.image.load(FLOOR), '1':pygame.image.load(WALL),
-            'K':pygame.image.load(KEEP), 'M':pygame.image.load(MAC),
-            'n':pygame.image.load(NEEDLE), 't':pygame.image.load(TUBE),
-            'c':pygame.image.load(CHLOROFORME)}
-        # Image des différents objets de l'inventaire
-        self.inventory = {
-            'I':pygame.image.load(INVENTORY), 't':pygame.image.load(BIGTUB),
-            'n':pygame.image.load(BIGNEED), 'c':pygame.image.load(BIGCHLOR)}
-        # Position des différents objets de l'inventaire
-        self.pos_inv = {'n':(300,0), 't':(300, 100), 'c':(300, 200)}
-        # Construit le labyrinthe et Mac Gyver
+        self.init_dict()
+        # Build labyrinth and Mac Gyver
         self.labyrinth = Labyrinth(LAB)
         self.mg = Character()
-        # Charge la fenêtre de jeu
-        self.window = pygame.display.set_mode(
-                                        (self.labyrinth.row_length*PIXEL+100,
-                                         self.labyrinth.column_length*PIXEL))
+        # Load window game
+        row = self.labyrinth.row_length*PIXEL
+        column = max(300, self.labyrinth.column_length*PIXEL)
+        self.window = pygame.display.set_mode((row + 100, column))
+        # Position of the inventory objects
+        self.pos_inv = {'n':(row,0), 't':(row, 100), 'c':(row, 200)}
+
+
+    def init_dict(self):
+        """ Build two picture dictionary."""
+        # Picture of the tiles
+        self.tiles = {
+            '0':FLOOR, '1':WALL, 'K':KEEP, 'M':MAC,
+            'n':NEEDLE, 't':TUBE, 'c':CHLOROFORME
+        }
+        self.tiles = full_load(self.tiles)
+        # Picture of the objects inside the inventory
+        self.inventory ={'I':INVENTORY, 't':BIGTUB, 'n':BIGNEED, 'c':BIGCHLOR}
+        self.inventory = full_load(self.inventory)
+
 
     def main(self):
-
+        """Launch the game.""" 
         self.display()
+
         while True:
+            # Deal with the differents button
             keys = pygame.key.get_pressed()
             pygame.event.get()
             end = 0
@@ -47,17 +65,21 @@ class Engine:
 
             if end == 1:
                 break
-        self.credit()
 
 
     def credit(self):
+        """ Display credits."""
         pygame.init()
         self.window = pygame.display.set_mode(
                                     (self.labyrinth.row_length*PIXEL+100,
                                      self.labyrinth.column_length*PIXEL))
         while True:
-            self.window.blit(pygame.image.load(CREDIT), (0,0))
+            # Load credits picture
+            cred = '/'.join(['ressource', CREDIT])
+            self.window.blit(pygame.image.load(cred), (0,0))
             pygame.display.flip()
+            # If enter is pressed, launch the game again
+            # If escape is pressed, exit the game
             keys = pygame.key.get_pressed()
             pygame.event.get()
             if keys[pygame.K_ESCAPE]:
@@ -68,24 +90,42 @@ class Engine:
 
 
     def display(self):
-        """"affiche le jeu."""
+        """"Display the game."""
         for l, line in enumerate(self.labyrinth.lab):
             for c, search in enumerate(line):
+                # Display each tile of the labyrinth
                 pos = (c*PIXEL, l*PIXEL)
                 self.window.blit(self.tiles[search], pos)
                 if search == "M":
+                # define postion of mac gyver
                     self.mg.position = (l,c)
+        # Display inventory
         self.window.blit(self.inventory['I'], (300, 0))
         pygame.display.flip()
 
     
     def displace(self, move):
-        """Déplace graphiquement mac_gyver d'une case."""
-        # Place une case sur l'ancien emplacement de Mac Gyver
+        """Move mac Gyver on the screen."""
+        # Place a floor tile on the old mac gyver position
         pos = (self.mg.position[1]*PIXEL, self.mg.position[0]*PIXEL)
         self.window.blit(self.tiles['0'], pos)
+        
+        new_position = self.compute_coordinate(move)
+        
+        # Place mac_gyver on his new position
+        end, tile = self.moving(new_position)
+        pos = (self.mg.position[1]*PIXEL, self.mg.position[0]*PIXEL)
+        self.window.blit(self.tiles['M'], pos)
 
-        # Calcule les coordonnées de la nouvelle position de Mac gyver
+        # If an object is taken, place it inside the inventory
+        if tile == 'n' or tile == 't' or tile == 'c':
+            self.window.blit(self.inventory[tile], self.pos_inv[tile])
+        pygame.display.flip()
+        pygame.time.delay(DELAY)
+        return end
+
+    def compute_coordinate(self, move):
+        """Compute coordinate of Mac Gyver new position."""
         if move == 'UP':
             new_position = (self.mg.position[0]-1, self.mg.position[1])
         elif move == 'DOWN':
@@ -94,56 +134,56 @@ class Engine:
             new_position = (self.mg.position[0], self.mg.position[1]-1)
         elif move == 'RIGHT':
             new_position = (self.mg.position[0], self.mg.position[1]+1)
+        return new_position
         
-        # Affiche le personnage et les éventuels objets récupérés
-        end, tile = self.moving(new_position)
-        pos = (self.mg.position[1]*PIXEL, self.mg.position[0]*PIXEL)
-        self.window.blit(self.tiles['M'], pos)
-        if tile == 'n' or tile == 't' or tile == 'c':
-            self.window.blit(self.inventory[tile], self.pos_inv[tile])
-        pygame.display.flip()
-        pygame.time.delay(DELAY)
-        return end
 
-
-    def moving(self, np):
-        """Vérifie la position d'un personnage dans le labyrinthe."""
+    def moving(self, new_pos):
+        """Check if Mac Gyver new position is ok."""
         end = 0
-        # Vérifie que la case existe
-        try:
-            searching = self.labyrinth.lab[np[0]][np[1]]
-        except IndexError:
-            return end, '0'
+        searching = self.is_tile(new_pos)
         
         if searching == '1':
-            # Qu'elle est accessible
-            return end, searching
+            # Is it reachable?
+            pass
         elif searching == 'K':
-            # Ou si elle contient le gardien
-            self.fighting(np)
-            end = 1
-            return end, searching
+            # Does it contains the keeper?
+            self.fighting(new_pos)
+            end = 1 
         else:
-            # Si il n'y a pas de problèmes, donne au personnage
-            # l'objet éventuel sur la case et la position de la case.
-            self.mg.position = np
+            # If there is no problem, give to mac_gyver
+            # the position and an eventual object.
+            self.mg.position = new_pos
             self.mg.objects *= PRIME_NUMBERS[OBJECT_TILES.index(searching)]
-            # Puis remplace l'éventuel objet présent par un couloir vide
-            row = self.labyrinth.lab[np[0]]
-            self.labyrinth.lab[np[0]] = ''.join((row[:np[1]], '0', row[np[1]+1:]))
-            print(self.labyrinth.lab)
-            return end, searching
+            # Then erase the object inside the labyrinth
+            row = self.labyrinth.lab[new_pos[0]]
+            self.labyrinth.lab[new_pos[0]] = ''.join((row[:new_pos[1]],
+                                                      '0',
+                                                      row[new_pos[1]+1:]))
+        return end, searching
+
+
+    def is_tile(self, new_pos):
+        """Check if the tile is actually inside the labyrinth."""
+        try:
+            return self.labyrinth.lab[new_pos[0]][new_pos[1]]
+        except IndexError:
+            return '1'
 
     
     def fighting(self, new_position):
-        """Simule l'affrontement entre le héros et son adversaire."""
-        if self.mg.objects%self.mg.keeper_obj == 0:
+        """Play the fight between Mc Gyver and the Keeper."""
+        # Check if Mac Gyver have all the objects
+        if self.mg.objects == self.mg.keeper_obj:
+            # If yes, change Mac_Gyver position and launch the good end
             self.position = new_position
-            self.window.blit(pygame.image.load(GOOD_END), (0,0))
+            end = '/'.join(['ressource', GOOD_END])
+            self.window.blit(pygame.image.load(end), (0,0))
         else:
-            self.window.blit(pygame.image.load(BAD_END), (0,0))
+            # If not, launch the bad end
+            end = '/'.join(['ressource', BAD_END])
+            self.window.blit(pygame.image.load(end), (0,0))
         pygame.display.flip()
-        pygame.time.delay(5000)
+        pygame.time.delay(END_DELAY)
 
 if __name__ == "__main__":
     while True:

@@ -1,32 +1,40 @@
+# Size of a picture, in pixel
+PIXEL = 20
+# delay, in ms
+DELAY = 75
+# end delay, in ms
+END_DELAY = 4000
+# Name of the tiles you can walk on
+OBJECT_TILES = ['0', 'M', 'n', 't', 'c']
+# and their respective weight
+PRIME_NUMBERS = [1, 1, 2, 3, 5]
+
+
+### OBJETS PARAMETRABLES ###
 
 # Chemin vers le labyrinthe
+# Attention: pour fonctionner un labyrinthe doit être rectangle,
+# Ses murs représenté par des '1' et ses sols par des '0'.
+# Un emplacement doit être signalé pour Mac_Gyver et pour le gardien
+# par les lettres 'M' et 'K', respectivement.
 LAB = 'lab.txt'
 
-# Taille d'une icone, en pixel
-PIXEL = 20
 
-# Temps d'attente entre deux instructions
-DELAY = 75
-
-# Nom des tuiles passantes
-OBJECT_TILES = ['0', 'M', 'n', 't', 'c']
-# Puissance des objets intéressants
-PRIME_NUMBERS = [1, 1, 2, 3, 5]
-# Affichage des objets intéressants
-BIGNEED = 'ressource/aiguille-big.png'
-BIGCHLOR = 'ressource/ether-big.png'
-BIGTUB = 'ressource/tube_plastique-big.png'
-INVENTORY = 'ressource/inventaire.bmp'
+# Affichage des objets dans l'inventaire
+BIGNEED = 'aiguille-big.png'
+BIGCHLOR = 'ether-big.png'
+BIGTUB = 'tube_plastique-big.png'
+INVENTORY = 'inventaire.bmp'
 
 # Chemin vers les différentes icones
-FLOOR = 'ressource/floor-resize.png'
-WALL = 'ressource/wall-resize.png'
-MAC = 'ressource/MacGyver-resize.png'
-KEEP = 'ressource/Gardien-resize.png'
-NEEDLE = 'ressource/aiguille-resize.png'
-TUBE = 'ressource/tube_plastique-resize.png'
-CHLOROFORME = 'ressource/ether-resize.png'
+FLOOR = 'floor-resize.png'
+WALL = 'wall-resize.png'
+MAC = 'MacGyver-resize.png'
+KEEP = 'Gardien-resize.png'
+NEEDLE = 'aiguille-resize.png'
+TUBE = 'tube_plastique-resize.png'
+CHLOROFORME = 'ether-resize.png'
 
-CREDIT = 'ressource/credit.bmp'
-GOOD_END = 'ressource/good_end.bmp'
-BAD_END = 'ressource/bad_end.bmp'
+CREDIT = 'credit.bmp'
+GOOD_END = 'good_end.bmp'
+BAD_END = 'bad_end.bmp'
