@@ -1,6 +1,6 @@
 from random import randrange
 from constants import OBJECT_TILES
-from exceptions import InvalidLabyrinth
+from Exceptions import InvalidLabyrinth
 
 class Labyrinth:
 
